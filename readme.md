@@ -26,3 +26,15 @@ This project demonstrates a secure PHP authentication system built using core PH
 1. Import database from `database/schema.sql`
 2. Update DB credentials in PHP files
 3. Run on localhost using XAMPP/WAMP
+
+## Database Schema
+
+The project uses a MySQL database with the following rules:
+
+- Email must be unique
+- Passwords are stored using password_hash()
+- User identity is stored in session using user_id
+- User details are fetched on protected pages using session ID
+
+The database schema can be found in:
+database/schema.sql
