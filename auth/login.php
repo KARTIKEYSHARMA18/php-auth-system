@@ -1,4 +1,5 @@
 <?php
+session_start();
 $errors = [];
 
 $email = $password = "";
@@ -17,36 +18,30 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
     if($password===''){
         $errors['password'] = 'password is req.. ';
     }
-     $server = "localhost";
-    $username = "root";
-    $db_password = "";
+  
     if(empty($errors)){
-        $con = mysqli_connect($server, $username, $db_password, "signup");
-            if(!$con){
-                die("connection to this database failed due to." .  mysqli_connect_error());
-            }
-            $checkuser = "SELECT id, email, password FROM users WHERE email = '$email'";
-            $result = mysqli_query($con, $checkuser);
-            if(mysqli_num_rows($result)==0){
+        require_once __DIR__ .'/../db.php';
+        $checkuser = "SELECT id, email, password FROM users WHERE email = '$email'";
+        $result = mysqli_query($con, $checkuser);
+        if(mysqli_num_rows($result)==0){
                 //email not found.
-                $errors['login'] = 'invalid email or password';
+                $errors['login'] = 'Invalid email or password';
             
+        }
+        else{
+            $user = mysqli_fetch_assoc($result);
+            if(!password_verify($password, $user['password'])){
+                $errors['login'] = 'Invalid email or password';
             }
             else{
-                $user = mysqli_fetch_assoc($result);
-                if(!password_verify($password, $user['password'])){
-                    $errors['login'] = 'Invalid email or password';
-                }
-                else{
-                    //success->start session
-                    session_start();
-                    $_SESSION['user_id'] = $user['id'];
-                    $_SESSION['user_email'] = $user['email'];
-                    header("location: login.php");
-                    exit();
-                }
+
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_email'] = $user['email'];
+                header("location: ../dashboard.php");
+                exit();
             }
-            mysqli_close($con);
+        }
+        mysqli_close($con);
     }
 }
 
