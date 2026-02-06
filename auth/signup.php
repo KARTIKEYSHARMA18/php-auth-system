@@ -31,14 +31,9 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
     else if($password!== $confirm_password){
         $errors['confirm_password'] = "password do not match";
     }
-    $server = "localhost";
-    $username = "root";
-    $db_password = "";
+  
     if(empty($errors)){
-        $con = mysqli_connect($server, $username, $db_password, "signup");
-            if(!$con){
-                die("connection to this database failed due to." .  mysqli_connect_error());
-            }
+        require_once __DIR__ . '/../db.php';
         $checkemail = "SELECT id FROM users WHERE email = '$email'";
         $result = mysqli_query($con, $checkemail);
         if(mysqli_num_rows($result)>0){
@@ -48,17 +43,18 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
             $hashedpassword = password_hash($password, PASSWORD_DEFAULT);
             $sql = "INSERT INTO users (name, email, password) 
             VALUES ('$name', '$email', '$hashedpassword')";
-            if(mysqli_query($con, $sql)==true){
+            if(mysqli_query($con, $sql)){
                 header("Location: signup.php?success=1");
                 exit;
- 
+
 
             }
+            else{
+                $errors['form'] = 'something went wrong. try again';
+            }
         }
-        else{
-            echo "error: $sql <br>$con->error";
-        }
-        $con->close();
+      
+        mysqli_close($con);
     }
 }
 
@@ -71,7 +67,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup form</title>
-    <link href="style.css" rel = "stylesheet" >
+    <link href="../style.css" rel = "stylesheet" >
     <link href = "https://fonts.googleapis.com/css?family=Roboto|Sriracha&display=swap" rel = "stylesheet">
 
 </head>

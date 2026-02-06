@@ -2,7 +2,7 @@
 
 $errors=[];
 $insert = false;
-$name = $age = $gender = $email = $phone = $desc = $db_password = $confirm_password="";
+$name = $age = $gender = $email = $phone = $desc = $user_password = $confirm_password="";
 if($_SERVER["REQUEST_METHOD"]=="POST"){
     $name = trim($_POST['name']);
     $age = trim($_POST['age']);
@@ -10,7 +10,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
     $email = trim($_POST['email']);
     $phone = trim($_POST['phone']);
     $desc = trim($_POST['desc']);
-    $db_password = $_POST['password'] ?? '';
+    $user_password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password']?? '';
     //validation
     if($name ===''){
@@ -37,43 +37,40 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
     $errors['phone'] = "Phone must be 10 digits";
 }
 
-    if($db_password===''){
+    if($user_password===''){
         $errors['password'] = "password is req.";
     }
-    else if(strlen($db_password)<6){
+    else if(strlen($user_password)<6){
         $errors['password'] = "password must be at least 6 characters";
     }
     if($confirm_password === ""){
         $errors['confirm_password'] = "confirm your password";
 
     }
-    else if($db_password!== $confirm_password){
+    else if($user_password!== $confirm_password){
         $errors['confirm_password'] = "password do not match";
     }
     if (strlen($desc) > 500) {
     $errors['desc'] = 'Description too long';
     }
 
-    $server = "localhost";
-    $username = "root";
-    $password = "";
+ 
     if(empty($errors)){
-        $con = mysqli_connect($server, $username, $password, "contact");
-            if(!$con){
-                die("connection to this database failed due to." .  mysqli_connect_error());
-            }
-        $db_password = password_hash($db_password, PASSWORD_DEFAULT);
-        $sql = "INSERT INTO `contact` (`name`, `age`, `gender`, `email`, `phone`, `other`, `dt`, `password`) VALUES ( '$name', '$age', '$gender', '$email', '$phone', '$desc', current_timestamp(), '$db_password');";
+        require_once __DIR__ . '/../db.php';
+
+       
+        $hashedPassword= password_hash($user_password, PASSWORD_DEFAULT);
+        $sql = "INSERT INTO `contact` (`name`, `age`, `gender`, `email`, `phone`, `other`, `dt`, `password`) VALUES ( '$name', '$age', '$gender', '$email', '$phone', '$desc', current_timestamp(), '$hashedpassword');";
         if(mysqli_query($con, $sql)==true){
-            header("Location: contact.php?success=1");
+            header("Location: register.php?success=1");
             exit;
  
 
         }
         else{
-            echo "error: $sql <br>$con->error";
+             $errors['form'] = 'Something went wrong. Please try again.';
         }
-        $con->close();
+        mysqli_close($con);
     }
 }
 
@@ -83,18 +80,17 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>contact form</title>
+    <title>register form</title>
     <link href = "https://fonts.googleapis.com/css?family=Roboto|Sriracha&display=swap" rel = "stylesheet">
-    <link rel = "stylesheet" href="style.css">
+    <link rel = "stylesheet" href="../style.css">
 
 </head>
 <body>
         <img class = "bg" src = "download.jpg" alt = "RKGIT">
         <div class="container">
-        <h1>Enter your details to mark attendance
+        <h1>Register</h1>
+<p>Create an account to register for the event.</p>
 
-        </h1>
-        <p>Enter your detail and submit this form to confirm your participation in the trip.</p>
       <?php if(isset($_GET['success'])): ?>
   <p style="color: green; font-size: 18px;">
    
@@ -139,6 +135,10 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
                 exit;
 -->
         </form>
+        <?php if (isset($errors['form'])): ?>
+    <p style="color:red"><?= $errors['form'] ?></p>
+<?php endif; ?>
+
         <script src="index2.js"></script>
     </div>
 

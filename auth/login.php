@@ -38,8 +38,9 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_email'] = $user['email'];
                 header("location: ../dashboard.php");
-                exit();
+                exit;
             }
+            
         }
         mysqli_close($con);
     }
@@ -52,7 +53,7 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login form </title>
-    <link href="style.css" rel = "stylesheet" >
+    <link href="../style.css" rel = "stylesheet" >
     <link href = "https://fonts.googleapis.com/css?family=Roboto|Sriracha&display=swap" rel = "stylesheet">
 </head>
 <body>
