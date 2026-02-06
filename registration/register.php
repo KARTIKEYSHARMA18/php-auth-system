@@ -2,40 +2,22 @@
 
 $errors=[];
 $insert = false;
-$name = $age = $gender = $email = $phone = $desc = $user_password = $confirm_password="";
+$name = $email = $user_password = $confirm_password="";
 if($_SERVER["REQUEST_METHOD"]=="POST"){
     $name = trim($_POST['name']);
-    $age = trim($_POST['age']);
-    $gender=trim($_POST['gender']);
-    $email = trim($_POST['email']);
-    $phone = trim($_POST['phone']);
-    $desc = trim($_POST['desc']);
+    $email = trim($_POST['email'] ?? '');
     $user_password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password']?? '';
     //validation
     if($name ===''){
         $errors['name'] = 'name is required.' ;
     }
-    if($age === ''){
-        $errors['age'] = 'age is required.';
-
-    }
-    else if(!is_numeric($age)){
-        $errors['age'] = "age must be a number";
-    }
-    if($gender=== ''){
-        $errors['gender'] = "gender is required.";
-    }
+   
     if ($email === "") {
         $errors['email'] = "Email is required";
     } else if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
         $errors['email'] = "invalid email format";
     }
-    if ($phone === '') {
-    $errors['phone'] = "Phone is required";
-} elseif (!preg_match('/^[0-9]{10}$/', $phone)) {
-    $errors['phone'] = "Phone must be 10 digits";
-}
 
     if($user_password===''){
         $errors['password'] = "password is req.";
@@ -50,9 +32,6 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
     else if($user_password!== $confirm_password){
         $errors['confirm_password'] = "password do not match";
     }
-    if (strlen($desc) > 500) {
-    $errors['desc'] = 'Description too long';
-    }
 
  
     if(empty($errors)){
@@ -60,7 +39,9 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
 
        
         $hashedPassword= password_hash($user_password, PASSWORD_DEFAULT);
-        $sql = "INSERT INTO `contact` (`name`, `age`, `gender`, `email`, `phone`, `other`, `dt`, `password`) VALUES ( '$name', '$age', '$gender', '$email', '$phone', '$desc', current_timestamp(), '$hashedpassword');";
+       $sql = "INSERT INTO users (name, email, password, created_at)
+        VALUES ('$name', '$email', '$hashedPassword', NOW())";
+
         if(mysqli_query($con, $sql)==true){
             header("Location: register.php?success=1");
             exit;
@@ -102,24 +83,10 @@ if($_SERVER["REQUEST_METHOD"]=="POST"){
           <input type="text" name="name" value="<?= htmlspecialchars($name) ?>" placeholder="Enter your name">
 <span style="color:red"><?= $errors['name'] ?? '' ?></span>
 
-<input type="text" name="age" value="<?= htmlspecialchars($age) ?>" placeholder="Enter your age">
-<span style="color:red"><?= $errors['age'] ?? '' ?></span>
-
-<select name="gender">
-  <option value="">Select gender</option>
-  <option value="male" <?= $gender==='male'?'selected':'' ?>>Male</option>
-  <option value="female" <?= $gender==='female'?'selected':'' ?>>Female</option>
-</select>
-
-<span style="color:red"><?= $errors['gender'] ?? '' ?></span>
 
 <input type="email" name="email" value="<?= htmlspecialchars($email) ?>" placeholder="Enter your email">
 <span style="color:red"><?= $errors['email'] ?? '' ?></span>
 
-<input type="tel" name="phone" value="<?= htmlspecialchars($phone) ?>" placeholder="Enter your phone">
-<span style="color:red"><?= $errors['phone'] ?? '' ?></span>
-
-<textarea name="desc"><?= htmlspecialchars($desc) ?></textarea>
 <input type = "password" name = "password" placeholder="enter password">
 
 <span style="color:red"><?= $errors['password'] ?? '' ?></span>
